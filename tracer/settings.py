@@ -134,15 +134,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-"""配置sms"""
-TENCENT_SMS_APP_ID = 1400884470
-TENCENT_SMS_APP_KEY ="6398e05b1d51f04e6a08edcd8ddc2bed"
-TENCENT_SMS_SINGLE = "bug轻量级平台"
-TENCENT_SMS_TEMPLEATE = {
-    "login":2055161,
-    'register':2055160,
-    'renew':2055159
-}
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
