@@ -4,8 +4,8 @@
 
 #默认生成的一些缓存文件
 __pycache__/
-*.py[cod]
-*$py.calss
+*.py[cod]git
+*$py.class
 # Django stuff本地配置已经数据库:
 loacl_settings.py
 *.sqlite3
