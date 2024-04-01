@@ -1,0 +1,17 @@
+{% extends 'web/basic.html' %}
+{% load static %}
+{% block content %}
+        <div >
+            <img src="{% static 'web/img/Screenshot_20240331_203038.jpg' %}">
+        </div>
+{% endblock %}
+{% block css %}
+    <style>
+        img {
+            width: 30%;
+            margin: 0 auto; /* 将图像水平居中 */
+            display: block; /* 使图像成为块级元素以便使用margin: auto; */
+
+        }
+    </style>
+{% endblock %}

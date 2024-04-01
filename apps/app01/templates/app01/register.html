@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        .account{
+            width: 500px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div class="account">
+    <h1 style="text-align: center">注册</h1>
+{#基于bootstrap cdn生成表单#}
+    <form>
+    {% for feild in form %}
+        {% if feild.name == 'code' %}
+      <div class="form-group">
+        <label for="{{ feild.id_for_label }}">{{ feild.label }}</label>
+{#        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="">#}
+        <div class="clearfix">
+            <div class="col-md-6"><input type="button" class="btn btn-primary" value="点击获取验证码"></div>
+            <div class="col-md-6">{{ feild }}</div>
+        </div>
+      </div>
+        {% else %}
+           <div class="form-group">
+              <label for="{{ feild.id_for_label }}">{{ feild.label }}</label>
+    {#        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="">#}
+              {{ feild }}
+           </div>
+
+        {% endif %}
+      {% endfor %}
+      <button type="submit" class="btn btn-primary">注册</button>
+    </form>
+
+{#{% for feild in form %}#}
+{#    <p>{{ feild.label }} : {{ feild }}</p>#}
+{##}
+{#{% endfor %}#}
+
+</div>
+
+{#<h1>注册</h1>#}
+{#{% for feild in form %}#}
+{#    <p>{{ feild.label }} : {{ feild }}</p>#}
+{##}
+{#{% endfor %}#}
+</body>
+</html>

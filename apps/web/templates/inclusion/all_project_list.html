@@ -1,0 +1,15 @@
+<li class="dropdown active">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">项 目 {% if request.tracer.project %} ({{ request.tracer.project.project_name }}) {% endif %}<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="">我创建的</a></li>
+                {% for item in my %}
+                    <li><a href="{% url 'web:overview' project_id=item.id %}">{{ item.project_name }}</a></li>
+                  {% endfor %}
+                <li role="separator" class="divider"></li>
+                <li><a href="#">我参与的</a></li>
+                {% for item in join %}
+                    <li><a href="{% url 'web:overview' project_id=item.id %}">{{ item.project_id.project_name }}</a></li>
+                  {% endfor %}
+                <li><a href="#">所有项目</a></li>
+              </ul>
+            </li>

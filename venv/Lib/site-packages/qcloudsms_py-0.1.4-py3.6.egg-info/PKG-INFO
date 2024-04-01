@@ -1,0 +1,17 @@
+Metadata-Version: 1.1
+Name: qcloudsms-py
+Version: 0.1.4
+Summary: qcloudsms python sdk
+Home-page: https://gitub.com/qcloudsms/qcloudsms_py
+Author: qcloudsms
+Author-email: qcloudsms@gmail.com
+License: https://opensource.org/licenses/MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy

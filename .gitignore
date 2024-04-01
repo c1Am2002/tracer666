@@ -1,0 +1,15 @@
+# pychram 苹果特有文件 也写上算了
+.idea/
+.DS_Store
+
+#默认生成的一些缓存文件
+__pycache__/
+*.py[cod]
+*$py.calss
+# Django stuff本地配置已经数据库:
+loacl_settings.py
+*.sqlite3
+
+# database migrations迁移文件不过会提交__init__文件
+*/migrations/*.py
+!*/migrations/__init__.py

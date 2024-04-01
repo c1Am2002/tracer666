@@ -1,0 +1,373 @@
+{% extends 'web/project_basic.html' %}
+{% load static %}
+
+{% block css %}
+    <style>
+        .upload-progress {
+            position: fixed;
+            right: 2px;
+            bottom: 2px;
+            width: 400px;
+        }
+        .upload-progress .progress-error {
+            color: red;
+        }
+        .panel-default .panel-heading {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .panel-default > .panel-heading a {
+            text-decoration: none;
+        }
+
+        .panel-default > .panel-heading span {
+            padding: 0 5px;
+        }
+    </style>
+
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="container-fluid">
+            <div class="bs-example" data-example-id="table-within-panel">
+        <div class="panel panel-default">
+          <!-- Default panel contents -->
+          <div class="panel-heading">
+              <div>
+                  <a href="{% url 'web:file' project_id=request.tracer.project.id%}">
+                      文件库
+                  </a>
+                  {% for item in bread_list %}
+                      <a href="{% url 'web:file' project_id=request.tracer.project.id %}?folder={{ item.id }}">
+                      /{{ item.name }}
+                      </a>
+                  {% endfor %}
+              </div>
+                  <div>
+                    <a class="btn btn-success btn-xs" data-toggle="modal" data-target="#addModal" data-whatever="新建文件夹">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i> 新建文件夹
+                    </a>
+                      <input type="file" multiple id="uploadfile" name="uploadfile">
+                      <a>请将上传文件的文件名设置为小于256长度</a>
+                </div>
+        </div>
+          <!-- Table -->
+          <table class="table">
+            <thead>
+              <tr>
+                <th>名称</th>
+                <th>文件大小</th>
+                <th>更新者</th>
+                <th>更新时间</th>
+                  <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="rowList">
+            {% for item in file_list %}
+              <tr>
+                  <td>
+                      <a href="{% url 'web:file' project_id=request.tracer.project.id %}?folder={{ item.id }}">
+                      {{ item.name }}
+                      </a>
+                  </td>
+                  <td>
+                      {% if item.file_type == 1 %}
+                      {{ item.file_size }}
+                      {% else %}
+                       ----
+                      {% endif %}
+                  </td>
+                  <td>{{ item.update_user.name }}</td>
+                  <td>{{ item.update_datetime }}</td>
+                  <td>
+                      {% if item.file_type == 2 %}
+                            <a class="btn btn-default btn-xs" data-toggle="modal" data-target="#addModal"
+                               data-whatever="编辑文件夹" data-name="{{ item.name }}" data-fid="{{ item.id }}">
+                                编辑
+                            </a>
+                      {% else %}
+                          <a class="btn btn-default btn-xs"
+                             href="{% url 'web:file_download' project_id=request.tracer.project.id file_id=item.id %}">
+                                下载
+                            </a>
+                      {% endif %}
+                      <a class="btn btn-danger btn-xs" data-toggle="modal" data-target="#alterModal" data-fid="{{ item.id }}">
+                          删除
+                      </a>
+                  </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+        <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+          </div>
+          <div class="modal-body">
+            <form id="form">
+                        {% csrf_token %}
+                        <input class="hide" id="fid" type="text" name="fid">
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                <span class="error-msg">{{ field.errors.0 }}</span>
+                            </div>
+                        {% endfor %}
+                    </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+            <button id="btnsbt"  type="button" class="btn btn-primary">保 存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="alterModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+    <div class="alert alert-danger alert-dismissible fade in" role="alert">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4>确定删除该文件夹吗</h4>
+      <p style="text-align: right;">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">取 消</button>
+        <button id="btndelete" type="button" class="btn btn-default">确定</button>
+      </p>
+    </div>
+  </div>
+    </div>
+    </div>
+
+    <div id="uploadprogess" class="upload-progress hide">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <i class="fa fa-cloud-upload" aria-hidden="true"></i> 上传进度
+            </div>
+
+            <table class="table">
+                <tbody id="progressList">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="hide">
+        <table id="progressTemplate">
+            <tr>
+                <td>
+                    <div class="name"></div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar"
+                             aria-valuenow="0"
+                             aria-valuemin="0"
+                             aria-valuemax="100" style="width: 0%;">
+                            0%
+                        </div>
+                    </div>
+                    <div class="progress-error"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+{% endblock %}
+
+
+
+{% block js %}
+    <script src="{% static 'web/plugin/cos-js-sdk-v5.min.js' %}"></script>
+    <script>
+    var FOLDER_URL = "{% url 'web:file' project_id=request.tracer.project.id %}";
+    var DELETE_URL = "{% url 'web:file_delete' project_id=request.tracer.project.id %}";
+    var COS_CREDENTIAL = "{% url 'web:cos_credential' project_id=request.tracer.project.id %}";
+    var FILE_POST = "{% url 'web:file_post' project_id=request.tracer.project.id %}";
+    var CURRENT_FOLDER_ID = '{{ folder_object.id }}';
+
+    $(function () {
+        initAddModel();
+        bindbtnsbt();
+        binddeletesbt();
+        binduploadfile();
+
+    });
+    function binduploadfile() {
+        //获取临时凭证 凭证有效期5分钟 页面刷新可以重新获取临时凭证
+        $('#uploadfile').change(function () {
+            $('#progressList').empty();
+            var filelist = $(this)[0].files;
+            var checklist = [];
+            $.each(filelist, function (index, fileobject) {
+                //获取本次上传的文件的名称和大小
+                checklist.push({'name': fileobject.name, 'size': fileobject.size});
+            });
+            //临时凭证
+            // 把这些数据发送到django后台：Django后台进行容量的校验，如果么有问题则返回临时凭证；否则返回错误信息；
+            var cos_credential = new COS({
+                getAuthorization: function (options, callback) {
+                    $.post(COS_CREDENTIAL, JSON.stringify(checklist), function (res) {
+                        if (res.status) {
+                            var credentials = res.data && res.data.credentials;
+                            callback({
+                                TmpSecretId: credentials.tmpSecretId,
+                                TmpSecretKey: credentials.tmpSecretKey,
+                                XCosSecurityToken: credentials.sessionToken,
+                                StartTime: res.data.startTime,
+                                ExpiredTime: res.data.expiredTime
+                            });
+
+                            $('#uploadprogess').removeClass('hide');
+                        } else {
+                            alert(res.error);
+                        }
+                    });
+                }
+            });
+            $.each(filelist, function (index, fileobject) {
+                console.log(fileobject.name);
+                // 上传文件
+                var filename = fileobject.name;
+                var filesize = fileobject.size;
+                //生成随机文件名 防止重名
+                var key = (new Date()).getTime() + "_" + filename;
+
+                var tr = $('#progressTemplate').find('tr').clone();
+                tr.find('.name').text(filename);
+                $('#progressList').append(tr);
+                // 上传文件（异步）
+                cos_credential.putObject({
+                    Bucket: '{{ request.tracer.project.bucket }}', /* 必须 */
+                    Region: 'ap-chengdu', /* 存储桶所在地域，必须字段 */
+                    Key: key, /* 必须 */
+                    Body: fileobject, // 上传文件对象
+                    onProgress: function (progressData) {
+                        var percent = progressData.percent * 100 + '%';
+                        tr.find('.progress-bar').text(percent);
+                        tr.find('.progress-bar').css('width', percent);
+                    }
+                }, function (err, data) {
+                    if (data && data.statusCode === 200) {
+                        // 上传成功，将本次上传的文件提交到后台并写入数据
+                        // 当前文件上传成功
+                        $.post(FILE_POST, {
+                            name: filename,
+                            key: key,
+                            file_size: filesize,
+                            parent: CURRENT_FOLDER_ID,
+                            //etag就是当前上传文件所被标记的id（由腾讯的cos生成）
+                            etag: data.ETag,
+                            file_path: data.Location
+                        }, function (res) {
+
+                        })
+
+                    } else {
+                        tr.find('.progress-error').text('上传失败');
+                    }
+                });
+
+            })
+
+        })
+    }
+    function binddeletesbt() {
+        $('#btndelete').click(function () {
+            $.ajax({
+                url:DELETE_URL,
+                type:'GET',
+                data:{fid:$(this).attr('fid')},
+                dataType:"JSON",
+                success:function (res) {
+                    if(res.status){
+                        location.href = location.href;
+                    }
+                    else {
+                            console.log(res.error);
+                            // console.log(res); // {status:False, error:{ mobile_phone: ["错误信息"，],code: ["错误信息"，] }  }
+                            $.each(res.error, function (key, value) {
+                                $("#id_" + key).next().text(value[0]);
+
+                            })
+
+                        }
+                }
+
+        })
+
+    })
+    }
+    function initAddModel() {
+            $('#addModal').on('show.bs.modal', function (event) {
+              var button = $(event.relatedTarget); // Button that triggered the modal
+              var recipient = button.data('whatever'); // Extract info from data-* attributes
+              var name = button.data('name');
+              var fid = button.data('fid');
+              // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+              // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+              var modal = $(this);
+              modal.find('.modal-title').text(recipient);
+              if(fid) {
+                  $('#id_name').val(name);
+                  $('#fid').val(fid);
+              }
+              else {
+                  $('#form')[0].reset();
+              }
+
+    });
+            $('#alterModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var fid = button.data('fid');
+              // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+              // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+              $('#btndelete').attr('fid',fid);
+
+
+    })
+
+
+    }
+    function bindbtnsbt() {
+        $('#btnsbt').click(function () {
+            $.ajax({
+                url:location.href,
+                type:'POST',
+                data:$('#form').serialize(),
+                dataType:"JSON",
+                success:function (res) {
+                    if(res.status){
+                        location.href = location.href;
+                    }
+                    else {
+                            console.log(res.error)
+                            // console.log(res); // {status:False, error:{ mobile_phone: ["错误信息"，],code: ["错误信息"，] }  }
+                            $.each(res.error, function (key, value) {
+                                $("#id_" + key).next().text(value[0]);
+
+                            })
+
+                        }
+
+                }
+            })
+
+        })
+
+    }
+
+    </script>
+
+{% endblock %}
+

@@ -1,0 +1,158 @@
+{% extends 'web/basic.html' %}
+{% load static %}
+{% block title %} 用户账号登录 {% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'web/css/account.css' %}">
+    <style>
+        .error-msg{
+          color: red;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+   <div class="account">
+        <div class="title">用户账号登录</div>
+        <form id="form" method="POST" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.name == 'code_img' %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <div class="row">
+                            <div class="col-xs-7">
+                                {{ field }}
+                                <span class="error-msg">{{ field.errors.0 }}</span>
+                                <span class="error-msg"></span>
+                            </div>
+                            <div class="col-xs-5">
+                                <img src="{% url 'web:img_code' %}" id = imgcode title="点击更换图片">
+                            </div>
+                        </div>
+
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        <span class="error-msg">{{ field.errors.0 }}</span>
+                    </div>
+
+                {% endif %}
+            {% endfor %}
+
+            <div class="row">
+                <div class="col-xs-6">
+                    <input id="submit" type="submit" class="btn btn-primary" value="点击登录"/>
+                </div>
+            </div>
+
+            <div class="row">
+                <div style="float: right" >
+                    <a href="{% url 'web:login' %}">点击更换登录方式</a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <script>
+        //页面加载完成之后自动执行的函数
+        $(function () {
+            {#bindsms()#}
+            {#bindsubmit()#}
+            $('#imgcode').click(function () {
+               var srcone =  $(this).attr('src');
+               $(this).attr('src', srcone + "?");
+
+            })
+
+
+
+        });
+        //提交按钮
+        {#function bindsubmit() {#}
+        {#    $('#submit').click(function () {#}
+        {#        //清空错误信息#}
+        {#        $('.error-msg').empty();#}
+        {#        $('#form').serialize();#}
+        {#        $.ajax({#}
+        {#            url: "/web/login_username/",#}
+        {#            type: "POST",#}
+        {#            data: $('#form').serialize(),#}
+        {#            dataType: "JSON",//将服务端返回的数据转换为字典#}
+        {#            success: function (res) {#}
+        {#                console.log(res);#}
+        {#                if (res.status) {#}
+        {#                    console.log('提交数据')#}
+        {#                    location.href = res.data;#}
+        {#                } else {#}
+        {#                    console.log(res.error)#}
+        {#                    // console.log(res); // {status:False, error:{ mobile_phone: ["错误信息"，],code: ["错误信息"，] }  }#}
+        {#                    $.each(res.error, function (key, value) {#}
+        {#                        $("#id_" + key).next().text(value[0]);#}
+        {##}
+        {#                    })#}
+        {##}
+        {#                }#}
+        {#            }#}
+        {##}
+        {#        })#}
+        {##}
+        {#    })#}
+        {#//给验证码绑定事件#}
+        {#function bindsms() {#}
+        {#    $('#sms').click(function () {#}
+        {#        $('.error-msg').empty();#}
+        {#        //获取用户输入的手机号#}
+        {#        var MobelPhone = $('#id_MobelPhone').val();#}
+        {#        //发送ajax请求给后台#}
+        {#        $.ajax({#}
+        {#            url:"/web/sms/",#}
+        {#            type:"GET",#}
+        {#            data:{MobelPhone:MobelPhone, tpl:"login"},#}
+        {#            dataType:"JSON",//将服务端返回的数据转换为字典#}
+        {#            success:function (res) {#}
+        {#                //ajax成功后自动执行，返回的值就是res中的值#}
+        {#                console.log(res);#}
+        {#                if (res.status) {#}
+        {#                    snedsmsremind();#}
+        {#                    console.log('发送成功，开始倒计时')#}
+        {#                } else {#}
+        {#                    // 错误信息#}
+        {#                    console.log(res.error)#}
+        {#                    // console.log(res); // {status:False, error:{ mobile_phone: ["错误信息"，],code: ["错误信息"，] }  }#}
+        {#                    $.each(res.error, function (key, value) {#}
+        {#                        $("#id_" + key).next().text(value[0]);#}
+        {##}
+        {#                    })#}
+        {#                }#}
+        {##}
+        {#            }#}
+        {#        })#}
+        {##}
+        {#    })#}
+        {##}
+
+
+        {#//倒计时函数#}
+        {#function snedsmsremind() {#}
+        {#    var $smsBtn = $('#sms');#}
+        {#    $smsBtn.prop('disabled', true); // 禁用#}
+        {#    var time = 60;#}
+        {#    var remind = setInterval(function () {#}
+        {#        $smsBtn.val(time + '秒重新发送');#}
+        {#        time = time - 1;#}
+        {#        if (time < 1) {#}
+        {#            clearInterval(remind);#}
+        {#            $smsBtn.val('点击获取验证码').prop('disabled', false);#}
+        {#        }#}
+        {#    }, 1000)#}
+        {##}
+        {# }#}
+
+    </script>
+{% endblock %}
+</html>

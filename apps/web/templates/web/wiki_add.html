@@ -1,0 +1,121 @@
+{% extends 'web/project_basic.html' %}
+{% load static %}
+{% block css %}
+    <link  rel="stylesheet" href="{% static 'web/plugin/editor.md-master/css/editormd.min.css' %}">
+    <style>
+    .panel-default
+    {
+        margin-top: 10px;
+    }
+    .panel-body{
+        padding: 0;
+    }
+    .title-list{
+        border-right: 1px solid #dddddd;
+        min-height: 500px;
+    }
+    .content{
+        border-left: 1px solid #dddddd;
+        min-height: 600px;
+        margin-left: -1px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="panel panel-default">
+      <div class="panel-heading">wiki文档</div>
+      <div class="panel-body">
+          <div class="col-sm-3 title-list">
+              <ul id="catalog">
+
+                  </ul>
+          </div>
+
+          <div class="col-sm-9 content">
+
+                  <form method="post">
+                      {% csrf_token %}
+                      {% for filed in form %}
+                          {% if filed.name == 'text' %}
+                              <div class="form-group">
+                    <label for="{{ filed.id_for_label }}">{{ filed.label }}</label>
+                    <div id="editor">
+                        {{ filed }}
+                    </div>
+                  <span class="error-msg">{{ filed.errors.0 }}</span>
+                  </div>
+                          {% else %}
+                  <div class="form-group">
+                    <label for="{{ filed.id_for_label }}">{{ filed.label }}</label>
+                    {{ filed }}
+                  <span class="error-msg">{{ filed.errors.0 }}</span>
+                  </div>
+                          {% endif %}
+                      {% endfor %}
+              <button type="submit" class="btn btn-default">创 建</button>
+            </form>
+
+          </div>
+
+      </div>
+    </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'web/plugin/editor.md-master/editormd.min.js' %}"></script>
+    <script>
+    var WIKI_LOOK_URL = "{% url 'web:wiki' project_id=request.tracer.project.id %}";
+    var WIKI_UPLOAD_URL = "{% url 'web:wiki_upload' project_id=request.tracer.project.id %}";
+        $(function(){
+            initcatalog();
+            initeditor();
+
+        });
+        function initeditor() {
+            editormd('editor', {
+                placeholder: "请输入内容",
+                height:500,
+                path:"{% static 'web/plugin/editor.md-master/lib/' %}",
+                imageUpload:true,
+                imageFormats:["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL:WIKI_UPLOAD_URL
+
+
+            })
+
+        }
+
+
+        function initcatalog() {
+            $.ajax({
+                url:"{% url 'web:wiki_catalog' project_id=request.tracer.project.id %}",
+                type:'GET',
+                dataType:"JSON",
+                success:function (res) {
+                    if(res.status){
+                        $.each(res.data,function (index,item) {
+                            var href = WIKI_LOOK_URL + '?wiki_id=' + item.id;
+                            if(!item.father_id){
+                                var li = $("<li>").attr('id',"id_" + item.id).append($("<a>").text(item.title).attr('href', href) ).append($("<ul>"));
+                                $('#catalog').append(li)
+                            }
+                            else {
+                                var li = $("<li>").attr('id',"id_" + item.id).append($("<a>").text(item.title).attr('href', href) ).append($("<ul>"));
+                                $('#id_' + item.father_id).children('ul').append(li)
+                            }
+                        })
+
+                    }else {
+                        alert("生成目录失败")
+                    }
+
+                }
+            })
+
+        }
+    </script>
+{% endblock %}
